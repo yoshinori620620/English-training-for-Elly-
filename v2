@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>さっくんのサクサク推し英語！ - STAR EDITION</title>
+    <style>
+        :root {
+            --primary-color: #A55EEA; /* アイドルポップなパープル */
+            --success-color: #2ECC71;
+            --error-color: #E74C3C;
+            --warning-color: #F39C12;
+            --background-color: #F6F8FB;
+            --text-color: #333;
+            --card-bg: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(165, 94, 234, 0.15);
+            padding: 20px;
+            width: 100%;
+            max-width: 480px;
+            box-sizing: border-box;
+            position: relative;
+            border: 3px solid #E0D0FF;
+        }
+
+        /* 共通ヘッダー（Topへ戻るボタン） */
+        .app-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px dashed #EFEFEF;
+        }
+
+        .back-top-btn {
+            background-color: #7F8C8D;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .back-top-btn:hover { background-color: #616A6B; }
+
+        .score-board {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 10px rgba(165, 94, 234, 0.3);
+        }
+
+        /* 各画面の制御 */
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
+
+        /* --- TOP画面スタイル --- */
+        .welcome-text { text-align: center; color: #2C3E50; margin-top: 5px; margin-bottom: 20px; }
+        .welcome-text h2 { margin: 0 0 5px 0; font-size: 22px; color: #5758BB; font-weight: 800; }
+        .welcome-text p { margin: 0; font-size: 13px; color: #7F8C8D; font-weight: bold; }
+
+        .menu-buttons { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+        .main-btn {
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .main-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-primary { background: linear-gradient(135deg, #4b7bec, #a55eea); }
+        .btn-warning { background: linear-gradient(135deg, #ff9f43, #f39c12); }
+
+        .list-section-title { font-size: 15px; font-weight: bold; color: #34495E; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+        
+        /* 問題カードリスト */
+        .problem-list { display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .problem-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .problem-card:hover { border-color: var(--primary-color); background-color: #F1EDFF; }
+        
+        .card-left { display: flex; flex-direction: column; gap: 4px; }
+        .card-title { font-weight: bold; font-size: 15px; color: #2C3E50; }
+        .card-stats { font-size: 11px; color: #7F8C8D; }
+        .stat-badge { margin-right: 6px; padding: 2px 6px; border-radius: 4px; background: #EDF2F7; }
+        .stat-success { color: var(--success-color); font-weight: bold; }
+        .stat-error { color: var(--error-color); font-weight: bold; }
+
+        /* 解答状況バッジ */
+        .status-badge { font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 12px; text-align: center; min-width: 60px; }
+        .status-unseen { background: #E2E8F0; color: #64748B; }
+        .status-correct { background: #E8F8F5; color: #117A65; }
+        .status-incorrect { background: #FDEDEC; color: #922B21; }
+
+        /* --- クイズ画面スタイル --- */
+        .japanese-meaning { background-color: #EDF2F7; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 16px; color: #2C3E50; margin-bottom: 15px; border-left: 5px solid var(--primary-color); }
+        .question-box { font-size: 19px; line-height: 1.6; margin-bottom: 25px; min-height: 50px; word-break: break-word; font-weight: 500; }
+        .blank { color: #a55eea; font-weight: bold; text-decoration: underline; padding: 0 5px; }
+        .options-container { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background-color: white; border: 2px solid #E2E8F0; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: bold; text-align: left; cursor: pointer; transition: all 0.2s; color: #4A5568; outline: none; }
+        .option-btn:hover { border-color: var(--primary-color); background-color: #F7FAFC; }
+        
+        /* --- 👑 アイドル応援団演出エリア --- */
+        .idol-cheer-container {
+            margin-top: 15px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .idol-avatar-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .idol-group-badge {
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            background-color: #333;
+        }
+        .idol-name {
+            font-weight: 900;
+            font-size: 15px;
+        }
+        .idol-bubble {
+            position: relative;
+            background: #FFF;
+            border-radius: 12px;
+            padding: 12px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: 1.4;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border: 2px solid #333;
+        }
+
+        .feedback-box { margin-top: 15px; padding: 15px; border-radius: 12px; display: none; background-color: #F8FAFC; border: 1px solid #E2E8F0; }
+        .feedback-title { font-weight: bold; font-size: 16px; margin-bottom: 8px; color: #2C3E50; border-bottom: 1px solid #E2E8F0; padding-bottom: 4px; }
+        .feedback-detail { color: #2C3E50; font-size: 13px; line-height: 1.6; }
+
+        .action-btn { margin-top: 15px; width: 100%; background-color: #2C3E50; color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .action-btn:hover { background-color: #1A252F; }
+
+        /* --- 結果画面スタイル --- */
+        .review-list { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .review-item { border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; }
+        .review-header { padding: 10px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; }
+        .review-item.correct .review-header { background-color: #E8F8F5; color: #117A65; }
+        .review-item.incorrect .review-header { background-color: #FDEDEC; color: #922B21; }
+        .review-body { padding: 12px; background-color: #FAFAFA; border-top: 1px solid #E2E8F0; font-size: 13px; display: none; line-height: 1.5; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <!-- 共通ナビゲーション -->
+    <div class="app-nav" id="app-nav" style="display: none;">
+        <button class="back-top-btn" onclick="goToTop()">🏠 Topに戻る</button>
+        <div class="score-board" id="score-display">SCORE: 0</div>
+    </div>
+
+    <!-- 1. TOP画面 -->
+    <div id="top-screen" class="screen active">
+        <div class="welcome-text">
+            <h2>✨ 通学英語 STAR MASTER ✨</h2>
+            <p>推しと一緒にネイティブ表現を完璧にしよう！</p>
+        </div>
+        
+        <div class="menu-buttons">
+            <button class="main-btn btn-primary" onclick="startMode('random')">🎲 全問からランダム出題！</button>
+            <button class="main-btn btn-warning" id="review-mode-btn" onclick="startMode('review')">🔥 弱点克服（ミスした問題のみ）</button>
+        </div>
+
+        <div class="list-section-title">📊 君の学習ログ / 問題リスト</div>
+        <div class="problem-list" id="problem-card-list"></div>
+    </div>
+
+    <!-- 2. クイズプレイ画面 -->
+    <div id="quiz-screen" class="screen">
+        <div class="japanese-meaning" id="quiz-theme"></div>
+        <div class="question-box" id="quiz-question"></div>
+        <div class="options-container" id="quiz-options"></div>
+
+        <!-- 👑 アイドル応援団演出エリア -->
+        <div class="idol-cheer-container" id="idol-cheer-box">
+            <div class="idol-avatar-bar">
+                <span class="idol-group-badge" id="idol-group">Snow Man</span>
+                <span class="idol-name" id="idol-name">佐久間大介</span>
+            </div>
+            <div class="idol-bubble" id="idol-bubble-text">最っ高！天才じゃん！その調子で次もいっちゃおう！👍</div>
+        </div>
+
+        <div class="feedback-box" id="quiz-feedback">
+            <div class="feedback-title" id="quiz-feedback-title">💡 正解の解説・ニュアンス</div>
+            <div class="feedback-detail" id="quiz-feedback-detail"></div>
+        </div>
+        <button class="action-btn" id="quiz-next-btn" style="display:none;" onclick="handleNext()">次の問題へ 👉</button>
+    </div>
+
+    <!-- 3. 結果まとめ画面 -->
+    <div id="result-screen" class="screen">
+        <h3 style="text-align: center; color: #2C3E50; margin: 5px 0 15px 0;" id="result-title">セッション終了！</h3>
+        <div class="list-section-title">📝 今回解いた問題の振り返り</div>
+        <div class="review-list" id="result-review-list"></div>
+        <button class="action-btn" onclick="goToTop()">🏠 トップメニューへ戻る</button>
+    </div>
+</div>
+
+<script>
+    // アイドル応援団の膨大なセリフ・メンカラデータベース
+    const idolSupportDatabase = [
+        // --- Snow Man ---
+        { name: "佐久間大介", group: "Snow Man", color: "#FF69B4", correct: "最っ高！天才じゃん！イイね！その調子で次もいっちゃおう！🩷", incorrect: "ドンマイどんまい！大丈夫、さっくんが応援してるから次で絶対リベンジしよ！💪" },
+        { name: "目黒蓮", group: "Snow Man", color: "#222222", correct: "正解。すごいじゃん、集中して頑張ってるのちゃんと見てたよ。🖤", incorrect: "おしい。焦らなくていいからね。次は絶対あたるよ、自分を信じて。👍" },
+        { name: "ラウール", group: "Snow Man", color: "#FFFFFF", correct: "Wow!! 大正解！すごーい、完璧すぎて僕もめちゃくちゃ嬉しい！🤍", incorrect: "大丈夫だよ！今のミスは次へのステップ！次、カッコよく決めちゃって！✨" },
+        { name: "渡辺翔太", group: "Snow Man", color: "#3498db", correct: "やるじゃん。正直かなりカッコよかったわ、その調子！💙", incorrect: "あーおしい！でも全然気にするなって。次、サクッと当てちゃおうぜ。👊" },
+        { name: "向井康二", group: "Snow Man", color: "#e67e22", correct: "大正解や！ゴイゴイスー！君の英語力、ほんまに輝いてるで！🧡", incorrect: "あちゃーおしい！でも涙拭いてな？次正解したらコージレーダーあげるから！どどんまい！" },
+        { name: "阿部亮平", group: "Snow Man", color: "#2ecc71", correct: "素晴らしい！大正解だよ！完璧な知識だね、さすがです！💚", incorrect: "おしいなぁ。でもこの間違いでさらに知識が深まったよ。次はきっと大丈夫！" },
+        { name: "岩本照", group: "Snow Man", color: "#f1c40f", correct: "ナイス！完璧な一撃。その調子で脳をどんどんビルドアップしていこう！💛", incorrect: "ドンマイ。ここで諦めないのが一番強い。次の1問、きっちり仕留めよう。筋トレと一緒！" },
+        { name: "深澤辰哉", group: "Snow Man", color: "#9b59b6", correct: "よっしゃ正解！いや〜お前すごいわ！ふっかさん感動しちゃった！💜", incorrect: "あちゃーミスった？大丈夫大丈夫、最年長のふっかさんが全部受け止めてやるから次いこ！" },
+        { name: "宮舘涼太", group: "Snow Man", color: "#e74c3c", correct: "美しい正解だ。君の冴え渡るひらめき、まさにParty Timeだね。❤️", incorrect: "気にする必要はないよ。気品を保ちつつ、次のチャンスを華麗に掴み取ろう。" },
+
+        // --- King & Prince ---
+        { name: "永瀬廉", group: "King & Prince", color: "#2C3E50", correct: "正解！めっちゃすごいやん。お前の頑張り、ちゃんと届いてるで。🖤", incorrect: "あーおしい！まぁまぁ、おっけおっけ！次でしっかり取り返そうや、な？" },
+        { name: "高橋海人", group: "King & Prince", color: "#f1c40f", correct: "すごーい大正解！ひまわりみたいな満開の笑顔になっちゃう！イイね！💛", incorrect: "うわぁおしい！でも大丈夫、海ちゃんがずっと隣で応援してるから次がんばろ！" },
+        { name: "平野紫耀", group: "King & Prince(OG)", color: "#e74c3c", correct: "よっしゃ正解！お前マジで天才！脳みそフル回転で超カッコいい！❤️", incorrect: "あちゃー！でもどんまいどんまい！俺なんていつも間違えるから大丈夫！次いこ！" },
+        { name: "岸優太", group: "King & Prince(OG)", color: "#9b59b6", correct: "うおおお正解！マジリスペクトっす！その英語力、ガチで本物！！💜", incorrect: "ドンマイっす！ここでへこたれなきゃ絶対次はっ…あたる！気合いで行きましょ！" },
+        { name: "神宮寺勇太", group: "King & Prince(OG)", color: "#3498db", correct: "正解だよ。スマートで本当に素敵だね。君のこと誇りに思うよ。💙", incorrect: "おしかったね。でも大丈夫、落ち込まないで。次は僕が全力でパワー送るからね。" },
+
+        // --- SixTONES ---
+        { name: "ジェシー", group: "SixTONES", color: "#e74c3c", correct: "正解！！ハハハ！素晴らしい！まさにAHAHAHAだね！Good job!❤️", incorrect: "オーマイガッ！ドンマイ！ズドン！！次は絶対いけるからスマイルで行こう！" },
+        { name: "京本大我", group: "SixTONES", color: "#FFF0F5", correct: "大正解！君のその解答、まるで美しいメロディのようだね。素敵だよ。🩷", incorrect: "おしいな…。でもね、ここからの巻き返しが一番美しいんだよ。次、期待してるね。" },
+        { name: "松村北斗", group: "SixTONES", color: "#222222", correct: "正解。…やるね。君が努力してる成果がちゃんと形になってて素晴らしいよ。🖤", incorrect: "ミスは誰にでもある。大切なのは、それを引きずらずに次の一手に集中することだよ。" },
+        { name: "田中樹", group: "SixTONES", color: "#3498db", correct: "よっしゃ正解！お前マジでイケてんじゃん！最高、その調子でブチ上げようぜ！💙", incorrect: "あーミスったか！まぁそんな時もあるって。次ガツンと正解して、俺らを見返してくれよ。" },
+        { name: "森本慎太郎", group: "SixTONES", color: "#2ecc71", correct: "うおっしゃ正解！パワー全開だね！最高に気持ちいい！！💚", incorrect: "どんまいどんまい！元気出していこうぜ！次はドカンと大正解ぶちかまそう！" },
+        { name: "高地優吾", group: "SixTONES", color: "#f1c40f", correct: "大正解！日々笑顔で頑張った成果が出たね！おめでとう！💛", incorrect: "おしいっ！でも下向かないで日々笑顔！次の一問、気楽に楽しんでいこう！" }
+    ];
+
+    let currentIdol = null; // 今回の担当メンバー
+
+    const masterData = [
+        { id: 0, meaning: "空気を読む", expression: "Take the hint", sentence: "He’s oblivious and doesn’t know how to ______ a hint.", answer: "take", options: ["take", "get", "read"], translation: "彼は鈍感で、空気を読むことができない。", explanation: "直訳で「ヒントを取る」となるこの表現は、人の意図を悟ったり気持ちを察したりすることを意味し、「空気を読む」に相当します。一般的には“take a hint”、特定の文脈では“take the hint”を使います。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" },
+        { id: 1, meaning: "大目に見る", expression: "Cut someone some slack", sentence: "He's new to the job, so ______ him some slack.", answer: "cut", options: ["cut", "take", "give"], translation: "彼は新人なんだから、大目に見（勘弁して）あげなよ。", explanation: "直訳は「誰かにロープのたるみを与える」。相手をきつく縛らずに少し余裕を持たせたり、厳しい追及を控えたりして、「大目に見る」「勘弁してあげる」という意味の定番表現です。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" },
+        { id: 2, meaning: "状況を見守る", expression: "Play it by ear", sentence: "We don't have a solid plan for tomorrow, so let's just ______ it by ear.", answer: "play", options: ["play", "do", "run"], translation: "明日の確実な計画はないから、その場の流れで決めよう。", explanation: "元々は「楽譜を見ずに即興で演奏する」が由来。事前に計画を立てず、その場の状況に合わせて柔軟に対応する、様子を見るという意味で日常会話に頻出します。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" },
+        { id: 3, meaning: "本音を吐く", expression: "Spill the beans", sentence: "Don't ______ the beans about the surprise party!", answer: "spill", options: ["drop", "spill", "throw"], translation: "サプライズパーティーのことをバラさないでね！", explanation: "秘密をうっかり漏らす、あるいは白状する時に使います。古代ギリシャの投票で、賛成・反対の豆を袋に入れていた際、袋がひっくり返って中身（秘密）が漏れたことが由来です。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" },
+        { id: 4, meaning: "もうお手上げ", expression: "Call it a day", sentence: "We’ve been working for ten hours, let's ______ it a day.", answer: "call", options: ["make", "call", "finish"], translation: "10時間も働いたんだから、今日はもう終わりにしよう。", explanation: "その日の仕事や活動を「今日はここまでにして終わりにしよう」と切り上げる時に使います。ビジネスシーンの退社時や、勉強に区切りをつける時の鉄板フレーズです。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" }
+    ];
+
+    let currentQueue = [];
+    let queueIndex = 0;
+    let currentScore = 0;
+    let isAnswered = false;
+    let currentSessionResults = [];
+
+    window.onload = function() {
+        renderTopScreen();
+    };
+
+    function renderTopScreen() {
+        document.getElementById('app-nav').style.display = 'none';
+        showScreen('top-screen');
+        
+        const cardListContainer = document.getElementById('problem-card-list');
+        cardListContainer.innerHTML = '';
+
+        let hasIncorrect = false;
+
+        masterData.forEach(item => {
+            if (item.lastStatus === "不正解") hasIncorrect = true;
+
+            let badgeClass = "status-unseen";
+            if (item.lastStatus === "正解") badgeClass = "status-correct";
+            if (item.lastStatus === "不正解") badgeClass = "status-incorrect";
+
+            const card = document.createElement('div');
+            card.className = 'problem-card';
+            card.onclick = () => startSingleQuestion(item.id);
+            card.innerHTML = `
+                <div class="card-left">
+                    <div class="card-title">${item.meaning} <span style="font-size:11px; font-weight:normal; color:#7F8C8D;">(${item.expression})</span></div>
+                    <div class="card-stats">
+                        <span class="stat-badge">回答: ${item.timesPlayed}回</span>
+                        <span class="stat-badge stat-success">〇: ${item.correctCount}</span>
+                        <span class="stat-badge stat-error">×: ${item.incorrectCount}</span>
+                    </div>
+                </div>
+                <div class="status-badge ${badgeClass}">${item.lastStatus}</div>
+            `;
+            cardListContainer.appendChild(card);
+        });
+
+        const reviewBtn = document.getElementById('review-mode-btn');
+        if (hasIncorrect) {
+            reviewBtn.disabled = false;
+            reviewBtn.style.opacity = "1";
+            reviewBtn.innerText = "🔥 弱点克服（ミスした問題のみ）";
+        } else {
+            reviewBtn.disabled = true;
+            reviewBtn.style.opacity = "0.4";
+            reviewBtn.innerText = "🔒 弱点克服（現在ミスした問題はありません）";
+        }
+    }
+
+    function startMode(mode) {
+        currentSessionResults = [];
+        currentScore = 0;
+        queueIndex = 0;
+        document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+        document.getElementById('app-nav').style.display = 'flex';
+
+        if (mode === 'random') {
+            currentQueue = masterData.map(item => item.id);
+            currentQueue.sort(() => Math.random() - 0.5);
+        } else if (mode === 'review') {
+            currentQueue = masterData.filter(item => item.lastStatus === "不正解").map(item => item.id);
+            currentQueue.sort(() => Math.random() - 0.5);
+        }
+
+        if (currentQueue.length > 0) {
+            // クイズセッション開始時にランダムでアイドルの担当を決定
+            pickRandomIdol();
+            showScreen('quiz-screen');
+            loadQuizQuestion();
+        }
+    }
+
+    function startSingleQuestion(id) {
+        currentSessionResults = [];
+        currentScore = 0;
+        queueIndex = 0;
+        document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+        document.getElementById('app-nav').style.display = 'flex';
+        
+        currentQueue = [id];
+        pickRandomIdol();
+        showScreen('quiz-screen');
+        loadQuizQuestion();
+    }
+
+    // アイドルをランダムで選出
+    function pickRandomIdol() {
+        const randomIndex = Math.floor(Math.random() * idolSupportDatabase.length);
+        currentIdol = idolSupportDatabase[randomIndex];
+    }
+
+    function loadQuizQuestion() {
+        isAnswered = false;
+        const activeId = currentQueue[queueIndex];
+        const questionData = masterData.find(item => item.id === activeId);
+
+        document.getElementById('quiz-theme').innerText = `テーマ：「${questionData.meaning}」`;
+        document.getElementById('quiz-question').innerHTML = questionData.sentence.replace("______", `<span class="blank">[ ??? ]</span>`);
+        
+        const optionsBox = document.getElementById('quiz-options');
+        optionsBox.innerHTML = '';
+
+        questionData.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkQuizAnswer(opt, btn, questionData);
+            optionsBox.appendChild(btn);
+        });
+
+        // 演出ボックスをいったん非表示
+        document.getElementById('idol-cheer-box').style.display = 'none';
+        document.getElementById('quiz-feedback').style.display = 'none';
+        document.getElementById('quiz-next-btn').style.display = 'none';
+    }
+
+    function checkQuizAnswer(selected, buttonElement, data) {
+        if (isAnswered) return;
+        isAnswered = true;
+
+        const optionBtns = document.querySelectorAll('.option-btn');
+        optionBtns.forEach(btn => btn.style.cursor = 'default');
+
+        const feedbackBox = document.getElementById('quiz-feedback');
+        const feedbackDetail = document.getElementById('quiz-feedback-detail');
+        const cheerBox = document.getElementById('idol-cheer-box');
+        const cheerGroup = document.getElementById('idol-group');
+        const cheerName = document.getElementById('idol-name');
+        const cheerText = document.getElementById('idol-bubble-text');
+
+        let isCorrect = (selected === data.answer);
+        data.timesPlayed += 1;
+
+        // アイドル応援団表示のカスタマイズ
+        cheerGroup.innerText = currentIdol.group;
+        cheerName.innerText = currentIdol.name;
+        // 黒文字対策として、背景が極端に黒（目黒、北斗、廉）の場合は文字色やボーダーを微調整
+        if (currentIdol.color === "#222222" || currentIdol.color === "#2C3E50") {
+            cheerName.style.color = currentIdol.color;
+            cheerBox.querySelector('.idol-bubble').style.borderColor = currentIdol.color;
+            cheerBox.querySelector('.idol-bubble').style.background = "#F1F2F6";
+        } else {
+            cheerName.style.color = currentIdol.color;
+            cheerBox.querySelector('.idol-bubble').style.borderColor = currentIdol.color;
+            cheerBox.querySelector('.idol-bubble').style.background = "#FFFFFF";
+        }
+
+        if (isCorrect) {
+            data.correctCount += 1;
+            data.lastStatus = "正解";
+            currentScore += 10;
+            document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+            buttonElement.style.backgroundColor = '#2ECC71';
+            buttonElement.style.color = 'white';
+            buttonElement.style.borderColor = '#2ECC71';
+            
+            // 正解のセリフを注入
+            cheerText.innerText = currentIdol.correct;
+        } else {
+            data.incorrectCount += 1;
+            data.lastStatus = "不正解";
+            buttonElement.style.backgroundColor = '#E74C3C';
+            buttonElement.style.color = 'white';
+            buttonElement.style.borderColor = '#E74C3C';
+            
+            optionBtns.forEach(btn => {
+                if (btn.innerText === data.answer) {
+                    btn.style.borderColor = '#2ECC71';
+                    btn.style.backgroundColor = '#E8F8F5';
+                }
+            });
+
+            // 不正解のセリフを注入
+            cheerText.innerText = currentIdol.incorrect;
+        }
+
+        // 英文に正解を反映
+        document.getElementById('quiz-question').innerHTML = data.sentence.replace("______", `<span class="blank">${data.answer}</span>`);
+
+        // メルマガ由来の丁寧な解説を描画
+        feedbackDetail.innerHTML = `
+            <strong>【フレーズ】</strong> ${data.expression}<br>
+            <strong>【日本語訳】</strong> ${data.translation}<br><br>
+            <strong>💡解説：</strong><br>${data.explanation}
+        `;
+
+        // 演出と解説を同時にオープン！
+        cheerBox.style.display = 'block';
+        feedbackBox.style.display = 'block';
+        document.getElementById('quiz-next-btn').style.display = 'block';
+
+        currentSessionResults.push({
+            meaning: data.meaning,
+            expression: data.expression,
+            fullSentence: data.sentence.replace("______", `<u><strong>${data.answer}</strong></u>`),
+            translation: data.translation,
+            explanation: data.explanation,
+            isCorrect: isCorrect
+        });
+    }
+
+    function handleNext() {
+        queueIndex++;
+        if (queueIndex < currentQueue.length) {
+            // 毎回違うメンバーにバトンタッチして飽きさせない
+            pickRandomIdol();
+            loadQuizQuestion();
+        } else {
+            showResultScreen();
+        }
+    }
+
+    function showResultScreen() {
+        showScreen('result-screen');
+        document.getElementById('result-title').innerHTML = `セッション終了！獲得スコア: <strong>${currentScore} 点</strong>`;
+        
+        const reviewListContainer = document.getElementById('result-review-list');
+        reviewListContainer.innerHTML = '';
+
+        currentSessionResults.forEach((res, idx) => {
+            const item = document.createElement('div');
+            item.className = `review-item ${res.isCorrect ? 'correct' : 'incorrect'}`;
+            item.innerHTML = `
+                <div class="review-header" onclick="toggleAccordion(this)">
+                    <span>${res.isCorrect ? '〇' : '×'} ${res.meaning} (${res.expression})</span>
+                    <span>▼</span>
+                </div>
+                <div class="review-body">
+                    <strong>【英文】</strong><br>${res.fullSentence}<br><br>
+                    <strong>【訳】</strong><br>${res.translation}<br><br>
+                    <strong>【解説】</strong><br>${res.explanation}
+                </div>
+            `;
+            reviewListContainer.appendChild(item);
+        });
+    }
+
+    function toggleAccordion(header) {
+        const body = header.nextElementSibling;
+        const isVisible = body.style.display === 'block';
+        body.style.display = isVisible ? 'none' : 'block';
+        header.querySelector('span:last-child').innerText = isVisible ? '▼' : '▲';
+    }
+
+    function goToTop() {
+        renderTopScreen();
+    }
+
+    function showScreen(screenId) {
+        const screens = ['top-screen', 'quiz-screen', 'result-screen'];
+        screens.forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        document.getElementById(screenId).classList.add('active');
+    }
+</script>
+
+</body>
+</html>
