@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>いけてる英語表現 マスターアプリ</title>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --success-color: #2ECC71;
+            --error-color: #E74C3C;
+            --warning-color: #F39C12;
+            --background-color: #F5F7FA;
+            --text-color: #333;
+            --card-bg: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 20px;
+            width: 100%;
+            max-width: 480px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* 共通ヘッダー（Topへ戻るボタン） */
+        .app-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #EFEFEF;
+        }
+
+        .back-top-btn {
+            background-color: #7F8C8D;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .back-top-btn:hover { background-color: #616A6B; }
+
+        .score-board {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* 各画面の制御 */
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
+
+        /* --- TOP画面スタイル --- */
+        .welcome-text { text-align: center; color: #2C3E50; margin-top: 5px; margin-bottom: 20px; }
+        .welcome-text h2 { margin: 0 0 5px 0; font-size: 20px; }
+        .welcome-text p { margin: 0; font-size: 13px; color: #7F8C8D; }
+
+        .menu-buttons { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        .main-btn {
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-align: center;
+        }
+        .main-btn:hover { opacity: 0.9; }
+        .btn-primary { background-color: var(--primary-color); }
+        .btn-warning { background-color: var(--warning-color); }
+
+        .list-section-title { font-size: 15px; font-weight: bold; color: #34495E; margin-bottom: 10px; }
+        
+        /* 問題カードリスト */
+        .problem-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .problem-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.1s, border-color 0.2s;
+        }
+        .problem-card:hover { border-color: var(--primary-color); transform: scale(1.01); }
+        
+        .card-left { display: flex; flex-direction: column; gap: 4px; }
+        .card-title { font-weight: bold; font-size: 15px; color: #2C3E50; }
+        .card-stats { font-size: 11px; color: #7F8C8D; }
+        .stat-badge { margin-right: 6px; padding: 2px 6px; border-radius: 4px; background: #EDF2F7; }
+        .stat-success { color: var(--success-color); font-weight: bold; }
+        .stat-error { color: var(--error-color); font-weight: bold; }
+
+        /* 解答状況バッジ */
+        .status-badge { font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 12px; text-align: center; min-width: 60px; }
+        .status-unseen { background: #E2E8F0; color: #64748B; }
+        .status-correct { background: #E8F8F5; color: #117A65; }
+        .status-incorrect { background: #FDEDEC; color: #922B21; }
+
+        /* --- クイズ画面スタイル --- */
+        .japanese-meaning { background-color: #EDF2F7; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 16px; color: #2C3E50; margin-bottom: 15px; border-left: 4px solid var(--primary-color); }
+        .question-box { font-size: 18px; line-height: 1.6; margin-bottom: 25px; min-height: 50px; word-break: break-word; }
+        .blank { color: var(--primary-color); font-weight: bold; text-decoration: underline; padding: 0 5px; }
+        .options-container { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background-color: white; border: 2px solid #E2E8F0; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: bold; text-align: left; cursor: pointer; transition: all 0.2s; color: #4A5568; outline: none; }
+        .option-btn:hover { border-color: var(--primary-color); background-color: #F7FAFC; }
+        
+        .feedback-box { margin-top: 15px; padding: 15px; border-radius: 12px; display: none; }
+        .feedback-box.correct { background-color: #E8F8F5; color: #117A65; border: 1px solid var(--success-color); }
+        .feedback-box.incorrect { background-color: #FDEDEC; color: #922B21; border: 1px solid var(--error-color); }
+        .feedback-title { font-weight: bold; font-size: 17px; margin-bottom: 8px; }
+        .feedback-detail { color: #2C3E50; font-size: 13px; line-height: 1.6; }
+
+        .action-btn { margin-top: 15px; width: 100%; background-color: #2C3E50; color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; }
+        .action-btn:hover { background-color: #1A252F; }
+
+        /* --- 結果画面スタイル --- */
+        .review-list { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .review-item { border-radius: 8px; border: 1px solid #E2E8F0; overflow: hidden; }
+        .review-header { padding: 10px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; }
+        .review-item.correct .review-header { background-color: #E8F8F5; color: #117A65; }
+        .review-item.incorrect .review-header { background-color: #FDEDEC; color: #922B21; }
+        .review-body { padding: 12px; background-color: #FAFAFA; border-top: 1px solid #E2E8F0; font-size: 13px; display: none; line-height: 1.5; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <!-- 共通ナビゲーション（クイズ中・結果画面で表示） -->
+    <div class="app-nav" id="app-nav" style="display: none;">
+        <button class="back-top-btn" onclick="goToTop()">🏠 Topに戻る</button>
+        <div class="score-board" id="score-display">SCORE: 0</div>
+    </div>
+
+    <!-- 1. TOP画面 -->
+    <div id="top-screen" class="screen active">
+        <div class="welcome-text">
+            <h2>🇺🇸 通学英語マスター</h2>
+            <p>隙間時間にサクッとネイティブ表現を学ぼう！</p>
+        </div>
+        
+        <div class="menu-buttons">
+            <button class="main-btn btn-primary" onclick="startMode('random')">🎲 全問からランダム出題！</button>
+            <button class="main-btn btn-warning" id="review-mode-btn" onclick="startMode('review')">🔥 弱点克服（ミスした問題のみ）</button>
+        </div>
+
+        <div class="list-section-title">📊 君の学習ログ / 問題リスト</div>
+        <div class="problem-list" id="problem-card-list">
+            <!-- JavaScriptで問題カードを自動生成 -->
+        </div>
+    </div>
+
+    <!-- 2. クイズプレイ画面 -->
+    <div id="quiz-screen" class="screen">
+        <div class="japanese-meaning" id="quiz-theme"></div>
+        <div class="question-box" id="quiz-question"></div>
+        <div class="options-container" id="quiz-options"></div>
+
+        <div class="feedback-box" id="quiz-feedback">
+            <div class="feedback-title" id="quiz-feedback-title"></div>
+            <div class="feedback-detail" id="quiz-feedback-detail"></div>
+        </div>
+        <button class="action-btn" id="quiz-next-btn" style="display:none;" onclick="handleNext()">次の問題へ 👉</button>
+    </div>
+
+    <!-- 3. 結果まとめ画面 -->
+    <div id="result-screen" class="screen">
+        <h3 style="text-align: center; color: #2C3E50; margin: 5px 0 15px 0;" id="result-title">セッション終了！</h3>
+        <div class="list-section-title">📝 今回解いた問題の振り返り</div>
+        <div class="review-list" id="result-review-list"></div>
+        <button class="action-btn" onclick="goToTop()">🏠 トップメニューへ戻る</button>
+    </div>
+</div>
+
+<script>
+    // 100本のベースとなるコアデータ構造（ログ記録用のプロパティを拡張）
+    const masterData = [
+        { id: 0, meaning: "空気を読む", expression: "Take the hint", sentence: "He’s oblivious and doesn’t know how to ______ a hint.", answer: "take", options: ["take", "get", "read"], translation: "彼は鈍感で、空気を読むことができない。", explanation: "直訳で「ヒントを取る」となるこの表現は、人の意図を悟ったり気持ちを察したりすることを意味し、「空気を読む」に相当します。一般的には“take a hint”、特定の文脈では“take the hint”を使います。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" },
+        { id: 1, meaning: "大目に見る", expression: "Cut someone some slack", sentence: "He's new to the job, so ______ him some slack.", answer: "cut", options: ["cut", "take", "give"], translation: "彼は新人なんだから、大目に見（勘弁して）あげなよ。", explanation: "直訳は「誰かにロープのたるみを与える」。相手をきつく縛らずに少し余裕を持たせたり、厳しい追及を控えたりして、「大目に見る」「勘弁してあげる」という意味の定番表現です。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" },
+        { id: 2, meaning: "状況を見守る", expression: "Play it by ear", sentence: "We don't have a solid plan for tomorrow, so let's just ______ it by ear.", answer: "play", options: ["play", "do", "run"], translation: "明日の確実な計画はないから、その場の流れで決めよう。", explanation: "元々は「楽譜を見ずに即興で演奏する」が由来。事前に計画を立てず、その場の状況に合わせて柔軟に対応する、様子を見るという意味で日常会話に頻出します。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" },
+        { id: 3, meaning: "本音を吐く", expression: "Spill the beans", sentence: "Don't ______ the beans about the surprise party!", answer: "spill", options: ["drop", "spill", "throw"], translation: "サプライズパーティーのことをバラさないでね！", explanation: "秘密をうっかり漏らす、あるいは白状する時に使います。古代ギリシャの投票で、賛成・反対の豆を袋に入れていた際、袋がひっくり返って中身（秘密）が漏れたことが由来です。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" },
+        { id: 4, meaning: "もうお手上げ", expression: "Call it a day", sentence: "We’ve been working for ten hours, let's ______ it a day.", answer: "call", options: ["make", "call", "finish"], translation: "10時間も働いたんだから、今日はもう終わりにしよう。", explanation: "その日の仕事や活動を「今日はここまでにして終わりにしよう」と切り上げる時に使います。ビジネスシーンの退社時や、勉強に区切りをつける時の鉄板フレーズです。", timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" }
+    ];
+
+    let currentQueue = []; // 出題予定の問題リスト（インデックスの配列）
+    let queueIndex = 0;
+    let currentScore = 0;
+    let isAnswered = false;
+    let currentSessionResults = []; // 今回のセッションの履歴
+
+    // アプリ初期化
+    window.onload = function() {
+        renderTopScreen();
+    };
+
+    // TOP画面の描画（問題リストやステータスバッジの更新）
+    function renderTopScreen() {
+        document.getElementById('app-nav').style.display = 'none';
+        showScreen('top-screen');
+        
+        const cardListContainer = document.getElementById('problem-card-list');
+        cardListContainer.innerHTML = '';
+
+        let hasIncorrect = false;
+
+        masterData.forEach(item => {
+            if (item.lastStatus === "不正解") hasIncorrect = true;
+
+            // ステータスバッジのクラス判定
+            let badgeClass = "status-unseen";
+            if (item.lastStatus === "正解") badgeClass = "status-correct";
+            if (item.lastStatus === "不正解") badgeClass = "status-incorrect";
+
+            const card = document.createElement('div');
+            card.className = 'problem-card';
+            card.onclick = () => startSingleQuestion(item.id);
+            card.innerHTML = `
+                <div class="card-left">
+                    <div class="card-title">${item.meaning} <span style="font-size:12px; font-weight:normal; color:#7F8C8D;">(${item.expression})</span></div>
+                    <div class="card-stats">
+                        <span class="stat-badge">回答: ${item.timesPlayed}回</span>
+                        <span class="stat-badge stat-success">〇: ${item.correctCount}</span>
+                        <span class="stat-badge stat-error">×: ${item.incorrectCount}</span>
+                    </div>
+                </div>
+                <div class="status-badge ${badgeClass}">${item.lastStatus}</div>
+            `;
+            cardListContainer.appendChild(card);
+        });
+
+        // 復習モードボタンの活性・非活性制御
+        const reviewBtn = document.getElementById('review-mode-btn');
+        if (hasIncorrect) {
+            reviewBtn.disabled = false;
+            reviewBtn.style.opacity = "1";
+            reviewBtn.innerText = "🔥 弱点克服（ミスした問題のみ）";
+        } else {
+            reviewBtn.disabled = true;
+            reviewBtn.style.opacity = "0.4";
+            reviewBtn.innerText = "🔒 弱点克服（現在ミスした問題はありません）";
+        }
+    }
+
+    // 出題モードの開始
+    function startMode(mode) {
+        currentSessionResults = [];
+        currentScore = 0;
+        queueIndex = 0;
+        document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+        document.getElementById('app-nav').style.display = 'flex';
+
+        if (mode === 'random') {
+            // インデックスの配列を作ってシャッフル
+            currentQueue = masterData.map(item => item.id);
+            currentQueue.sort(() => Math.random() - 0.5);
+        } else if (mode === 'review') {
+            // 不正解ステータスの問題だけを抽出
+            currentQueue = masterData.filter(item => item.lastStatus === "不正解").map(item => item.id);
+            currentQueue.sort(() => Math.random() - 0.5);
+        }
+
+        if (currentQueue.length > 0) {
+            showScreen('quiz-screen');
+            loadQuizQuestion();
+        }
+    }
+
+    // 特定の問題カードをタップして単発出題
+    function startSingleQuestion(id) {
+        currentSessionResults = [];
+        currentScore = 0;
+        queueIndex = 0;
+        document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+        document.getElementById('app-nav').style.display = 'flex';
+        
+        currentQueue = [id];
+        showScreen('quiz-screen');
+        loadQuizQuestion();
+    }
+
+    // クイズ画面の構築
+    function loadQuizQuestion() {
+        isAnswered = false;
+        const activeId = currentQueue[queueIndex];
+        const questionData = masterData.find(item => item.id === activeId);
+
+        document.getElementById('quiz-theme').innerText = `テーマ：「${questionData.meaning}」`;
+        document.getElementById('quiz-question').innerHTML = questionData.sentence.replace("______", `<span class="blank">[ ??? ]</span>`);
+        
+        const optionsBox = document.getElementById('quiz-options');
+        optionsBox.innerHTML = '';
+
+        questionData.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkQuizAnswer(opt, btn, questionData);
+            optionsBox.appendChild(btn);
+        });
+
+        document.getElementById('quiz-feedback').style.display = 'none';
+        document.getElementById('quiz-next-btn').style.display = 'none';
+    }
+
+    // 回答判定
+    function checkQuizAnswer(selected, buttonElement, data) {
+        if (isAnswered) return;
+        isAnswered = true;
+
+        const optionBtns = document.querySelectorAll('.option-btn');
+        optionBtns.forEach(btn => btn.style.cursor = 'default');
+
+        const feedbackBox = document.getElementById('quiz-feedback');
+        const feedbackTitle = document.getElementById('quiz-feedback-title');
+        const feedbackDetail = document.getElementById('quiz-feedback-detail');
+
+        let isCorrect = (selected === data.answer);
+
+        // データプールのスタッツ更新
+        data.timesPlayed += 1;
+        if (isCorrect) {
+            data.correctCount += 1;
+            data.lastStatus = "正解";
+            currentScore += 10;
+            document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+            buttonElement.style.backgroundColor = '#2ECC71';
+            buttonElement.style.color = 'white';
+            buttonElement.style.borderColor = '#2ECC71';
+            feedbackBox.className = 'feedback-box correct';
+            feedbackTitle.innerText = '🎉 Correct!（正解）';
+        } else {
+            data.incorrectCount += 1;
+            data.lastStatus = "不正解";
+            buttonElement.style.backgroundColor = '#E74C3C';
+            buttonElement.style.color = 'white';
+            buttonElement.style.borderColor = '#E74C3C';
+            
+            // 正解選択肢をハイライト
+            optionBtns.forEach(btn => {
+                if (btn.innerText === data.answer) {
+                    btn.style.borderColor = '#2ECC71';
+                    btn.style.backgroundColor = '#E8F8F5';
+                }
+            });
+            feedbackBox.className = 'feedback-box incorrect';
+            feedbackTitle.innerText = '😢 Incorrect...（おしい！）';
+        }
+
+        // 英文に解答を挿入
+        document.getElementById('quiz-question').innerHTML = data.sentence.replace("______", `<span class="blank">${data.answer}</span>`);
+
+        // 詳細解説エリアの描画
+        feedbackDetail.innerHTML = `
+            <strong>【フレーズ】</strong> ${data.expression}<br>
+            <strong>【日本語訳】</strong> ${data.translation}<br><br>
+            <strong>💡解説：</strong><br>${data.explanation}
+        `;
+
+        // 今回のセッション結果履歴に登録
+        currentSessionResults.push({
+            meaning: data.meaning,
+            expression: data.expression,
+            fullSentence: data.sentence.replace("______", `<u><strong>${data.answer}</strong></u>`),
+            translation: data.translation,
+            explanation: data.explanation,
+            isCorrect: isCorrect
+        });
+
+        feedbackBox.style.display = 'block';
+        document.getElementById('quiz-next-btn').style.display = 'block';
+    }
+
+    // 次へボタンのハンドリング
+    function handleNext() {
+        queueIndex++;
+        if (queueIndex < currentQueue.length) {
+            loadQuizQuestion();
+        } else {
+            showResultScreen();
+        }
+    }
+
+    // セッション結果画面の表示
+    function showResultScreen() {
+        showScreen('result-screen');
+        document.getElementById('result-title').innerHTML = `セッション終了！獲得スコア: <strong>${currentScore} 点</strong>`;
+        
+        const reviewListContainer = document.getElementById('result-review-list');
+        reviewListContainer.innerHTML = '';
+
+        currentSessionResults.forEach((res, idx) => {
+            const item = document.createElement('div');
+            item.className = `review-item ${res.isCorrect ? 'correct' : 'incorrect'}`;
+            item.innerHTML = `
+                <div class="review-header" onclick="toggleAccordion(this)">
+                    <span>${res.isCorrect ? '〇' : '×'} ${res.meaning} (${res.expression})</span>
+                    <span>▼</span>
+                </div>
+                <div class="review-body">
+                    <strong>【英文】</strong><br>${res.fullSentence}<br><br>
+                    <strong>【訳】</strong><br>${res.translation}<br><br>
+                    <strong>【解説】</strong><br>${res.explanation}
+                </div>
+            `;
+            reviewListContainer.appendChild(item);
+        });
+    }
+
+    // アコーディオン開閉
+    function toggleAccordion(header) {
+        const body = header.nextElementSibling;
+        const isVisible = body.style.display === 'block';
+        body.style.display = isVisible ? 'none' : 'block';
+        header.querySelector('span:last-child').innerText = isVisible ? '▼' : '▲';
+    }
+
+    // ナビゲーション制御
+    function goToTop() {
+        renderTopScreen();
+    }
+
+    function showScreen(screenId) {
+        const screens = ['top-screen', 'quiz-screen', 'result-screen'];
+        screens.forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        document.getElementById(screenId).classList.add('active');
+    }
+</script>
+
+</body>
+</html>
