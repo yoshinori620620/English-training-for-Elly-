@@ -3,372 +3,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☆さっくんの！サクサク推し英語 - アクションゲーム版☆</title>
+    <title>☆さっくんの！サクサク推し英語（英検3級対策版）☆</title>
     <style>
         :root {
             --primary-color: #FF69B4; 
             --success-color: #2ECC71;
             --error-color: #E74C3C;
+            --warning-color: #F39C12;
             --background-color: #FFF0F5; 
             --text-color: #333;
+            --card-bg: #FFFFFF;
         }
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--background-color); margin: 0; padding: 10px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; box-sizing: border-box; overflow-x: hidden; }
-        .game-container { background-color: white; border-radius: 20px; box-shadow: 0 12px 30px rgba(255, 105, 180, 0.2); padding: 15px; width: 100%; max-width: 440px; box-sizing: border-box; border: 3px solid #FFB6C1; text-align: center; }
-        
-        .app-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 2px dashed #FFB6C1; gap: 5px; }
-        .back-portal-btn { background-color: #FF1493; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .score-board { background-color: var(--primary-color); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+        body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif; background-color: var(--background-color); color: var(--text-color); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; box-sizing: border-box; }
+        .game-container { background-color: white; border-radius: 20px; box-shadow: 0 12px 30px rgba(255, 105, 180, 0.2); padding: 20px; width: 100%; max-width: 480px; box-sizing: border-box; position: relative; border: 3px solid #FFB6C1; }
+        .app-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px dashed #FFB6C1; gap: 5px; }
+        .nav-left { display: flex; gap: 5px; }
+        .back-top-btn { background-color: #7F8C8D; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .back-portal-btn { background-color: #FF1493; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .score-board { background-color: var(--primary-color); color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 12px; box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3); white-space: nowrap; }
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
+        .welcome-text { text-align: center; color: #2C3E50; margin-top: 5px; margin-bottom: 20px; }
+        .welcome-text h2 { margin: 0 0 5px 0; font-size: 24px; color: #FF1493; font-weight: 900; }
+        .welcome-text p { margin: 0; font-size: 13px; color: #7F8C8D; font-weight: bold; }
+        .menu-buttons { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+        .main-btn { color: white; border: none; padding: 16px; font-size: 16px; font-weight: bold; border-radius: 14px; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-primary { background: linear-gradient(135deg, #FF69B4, #FF1493); }
+        .btn-warning { background: linear-gradient(135deg, #ff9f43, #f39c12); }
+        .list-section-title { font-size: 15px; font-weight: bold; color: #34495E; margin-bottom: 10px; }
+        .problem-list { display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .problem-card { background: #FFF5F7; border: 1px solid #FFD1DC; border-radius: 12px; padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .card-left { display: flex; flex-direction: column; gap: 4px; }
+        .card-title { font-weight: bold; font-size: 14px; color: #2C3E50; }
+        .card-stats { font-size: 11px; color: #7F8C8D; }
+        .stat-badge { margin-right: 6px; padding: 2px 6px; border-radius: 4px; background: #FFF; border: 1px solid #FFE4E1; }
+        .stat-success { color: var(--success-color); font-weight: bold; }
+        .stat-error { color: var(--error-color); font-weight: bold; }
+        .status-badge { font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 12px; text-align: center; min-width: 60px; }
+        .status-unseen { background: #E2E8F0; color: #64748B; }
+        .status-correct { background: #E8F8F5; color: #117A65; }
+        .status-incorrect { background: #FDEDEC; color: #922B21; }
+        .japanese-meaning { background-color: #FFF5F7; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; color: #2C3E50; margin-bottom: 15px; border-left: 5px solid var(--primary-color); }
+        .question-box { font-size: 18px; line-height: 1.6; margin-bottom: 25px; min-height: 50px; word-break: break-word; font-weight: bold; color: #2C3E50; }
+        .blank { color: #FF1493; font-weight: bold; text-decoration: underline; padding: 0 5px; }
+        .options-container { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background-color: white; border: 2px solid #FFD1DC; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: bold; text-align: left; cursor: pointer; color: #4A5568; outline: none; }
+        .option-btn:hover { border-color: var(--primary-color); background-color: #FFF5F7; }
+        .idol-cheer-container { margin-top: 15px; display: none; animation: fadeIn 0.4s ease; }
+        .idol-avatar-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .idol-group-badge { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; color: white; background-color: #333; }
+        .idol-name { font-weight: 900; font-size: 16px; }
+        .idol-bubble { position: relative; background: #FFF; border-radius: 12px; padding: 12px 15px; font-size: 15px; font-weight: bold; line-height: 1.4; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 2px solid #333; }
+        .feedback-box { margin-top: 15px; padding: 15px; border-radius: 12px; display: none; background-color: #F8FAFC; border: 1px solid #E2E8F0; }
+        .feedback-title { font-weight: bold; font-size: 15px; margin-bottom: 8px; color: #2C3E50; border-bottom: 1px solid #E2E8F0; padding-bottom: 4px; }
+        .feedback-detail { color: #2C3E50; font-size: 13px; line-height: 1.6; }
 
-        #gameCanvas { background: linear-gradient(to bottom, #87CEEB, #E0F6FF); border: 2px solid #333; border-radius: 12px; display: block; margin: 0 auto; max-width: 100%; cursor: pointer; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
-        
-        .hint-banner { background-color: #FFF5F7; padding: 8px; border-radius: 8px; font-weight: bold; font-size: 13px; margin-bottom: 10px; border-left: 5px solid var(--primary-color); text-align: left; white-space: pre-line; }
-        .instructions { font-size: 11px; color: #7F8C8D; margin-top: 5px; font-weight: bold; }
+        .audio-btn-container { display: flex; gap: 8px; margin-top: 10px; margin-bottom: 10px; }
+        .audio-speech-btn { flex: 1; padding: 10px; font-size: 13px; font-weight: bold; border-radius: 8px; border: 1px solid #FFB6C1; background-color: #FFF; color: #FF1493; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .audio-speech-btn:hover { background-color: #FFF5F7; }
 
-        .overlay { display: none; margin-top: 15px; padding: 15px; border-radius: 12px; background-color: #F8FAFC; border: 2px solid #FFB6C1; animation: fadeIn 0.3s ease; text-align: left; }
-        .overlay-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
-        .overlay.correct { border-color: var(--success-color); background-color: #E8F8F5; color: #117A65; }
-        .overlay.incorrect { border-color: var(--error-color); background-color: #FDEDEC; color: #922B21; }
-        .feedback-detail { font-size: 13px; line-height: 1.5; color: #333; margin-top: 8px; }
-        
-        .action-btn { margin-top: 12px; width: 100%; background-color: #FF1493; color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .action-btn:hover { background-color: #C71585; }
-        
-        .audio-speech-btn { width: 100%; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 6px; border: 1px solid #FFB6C1; background-color: #FFF; color: #FF1493; cursor: pointer; margin-top: 5px; }
-
-        .stats-summary { font-size: 11px; color: #555; margin-top: 4px; display: flex; justify-content: space-around; background: #FFF; padding: 4px; border-radius: 6px; border: 1px solid #FFE4E1; }
-
+        .action-btn { margin-top: 15px; width: 100%; background-color: #FF1493; color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .review-list { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+        .review-item { border-radius: 8px; border: 1px solid #FFD1DC; overflow: hidden; }
+        .review-header { padding: 10px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; }
+        .review-item.correct .review-header { background-color: #E8F8F5; color: #117A65; }
+        .review-item.incorrect .review-header { background-color: #FDEDEC; color: #922B21; }
+        .review-body { padding: 12px; background-color: #FAFAFA; border-top: 1px solid #E2E8F0; font-size: 13px; display: none; line-height: 1.5; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-
 <div class="game-container">
-    <div class="app-nav">
-        <button class="back-portal-btn" onclick="goToPortal()">🚪 Portalに戻る</button>
+    <div class="app-nav" id="app-nav" style="display: none;">
+        <div class="nav-left">
+            <button class="back-top-btn" onclick="goToTop()">🏠 Menu</button>
+            <button class="back-portal-btn" onclick="goToPortal()">🚪 Portal</button>
+        </div>
         <div class="score-board" id="score-display">SCORE: 0</div>
     </div>
-
-    <div class="hint-banner" id="current-hint">お題の日本語を読み込み中...</div>
-
-    <canvas id="gameCanvas" width="400" height="240"></canvas>
-    <div class="instructions">【操作】画面をタップ（クリック）すると「さっくん」が跳ねるよ！</div>
-
-    <div id="feedback-overlay" class="overlay">
-        <div class="overlay-title" id="overlay-title">結果</div>
-        <div id="idol-message" style="font-weight: bold; font-size: 14px; margin-bottom: 5px;"></div>
-        <button class="audio-speech-btn" onclick="speakEnglish()">🔊 英文のネイティブ発音を聴く</button>
-        <div class="feedback-detail" id="feedback-content"></div>
-        <div class="stats-summary" id="question-stats"></div>
-        <button class="action-btn" id="next-question-btn" onclick="reviveAndNext()">次の問題へ進む 👉</button>
+    <div id="top-screen" class="screen active">
+        <div class="welcome-text">
+            <h2>☆さっくんの！<br>サクサク推し英語☆</h2>
+            <p>🏆 英検3級合格特訓（全300問） 🏆</p>
+        </div>
+        <div class="menu-buttons">
+            <button class="main-btn btn-primary" onclick="startMode('random')">🎲 ランダム出題（10問）</button>
+            <button class="main-btn btn-warning" id="review-mode-btn" onclick="startMode('review')">🔥 弱点克服（ミスした問題のみ）</button>
+            <button class="main-btn" style="background-color: #7F8C8D;" onclick="goToPortal()">🚪 最初のポータル画面へ戻る</button>
+        </div>
+        <div class="list-section-title">📊 英検3級重要テーマ / 全300問リスト</div>
+        <div class="problem-list" id="problem-card-list"></div>
+    </div>
+    <div id="quiz-screen" class="screen">
+        <div class="japanese-meaning" id="quiz-theme"></div>
+        <div class="question-box" id="quiz-question"></div>
+        <div class="options-container" id="quiz-options"></div>
+        <div class="idol-cheer-container" id="idol-cheer-box">
+            <div class="idol-avatar-bar">
+                <span class="idol-group-badge" id="idol-group"></span>
+                <span class="idol-name" id="idol-name"></span>
+            </div>
+            <div class="idol-bubble" id="idol-bubble-text"></div>
+        </div>
+        <div class="feedback-box" id="quiz-feedback">
+            <div class="feedback-title">💡 正解の解説・ニュアンス</div>
+            <div class="audio-btn-container">
+                <button class="audio-speech-btn" onclick="speakEnglish()">🔊 英文を聴く (US)</button>
+                <button class="audio-speech-btn" onclick="speakJapanese()">🔊 解説を聴く (JP)</button>
+            </div>
+            <div class="feedback-detail" id="quiz-feedback-detail"></div>
+        </div>
+        <button class="action-btn" id="quiz-next-btn" style="display:none;" onclick="handleNext()">次の問題へ 👉</button>
+    </div>
+    <div id="result-screen" class="screen">
+        <h3 style="text-align: center; color: #2C3E50; margin: 5px 0 15px 0;" id="result-title"></h3>
+        <div class="list-section-title">📝 今回解いた問題の振り返り</div>
+        <div class="review-list" id="result-review-list"></div>
+        <button class="action-btn" onclick="goToTop()">🏠 トップメニューへ戻る</button>
     </div>
 </div>
-
 <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    // 🌟 登場キャラクターデータベース（Snow Man, SixTONES, King & Prince, なにわ男子, Travis Japan, Aぇ! group, Hey! Say! JUMP）
-    const idols = [
-        // Snow Man
-        { name: "佐久間大介(Snow Man)", color: "#FF69B4", correct: "最っ高！天才じゃん！空中キャッチ大成功！🩷", incorrect: "あちゃーどんまい！さっくんが応援してるから次で絶対リベンジだ！💪" },
-        { name: "目黒蓮(Snow Man)", color: "#222222", correct: "正解。ナイスキャッチ。頑張ってるの、ちゃんと見てたよ。🖤", incorrect: "おしい。焦らなくて大丈夫。自分を信じて、次いこう。👍" },
-        { name: "ラウール(Snow Man)", color: "#FFB6C1", correct: "Wow!! 大正解！すごーい、完璧すぎて僕もめちゃくちゃ嬉しい！🤍", incorrect: "大丈夫！今のミスは次へのステップ！カッコよく決めちゃって！✨" },
-        { name: "渡辺翔太(Snow Man)", color: "#3498db", correct: "やるじゃん。正直かなりカッコよかったわ、その調子！💙", incorrect: "あーおしい！でも全然気にするなって。次サクッと当てようぜ。👊" },
-        { name: "向井康二(Snow Man)", color: "#e67e22", correct: "大正解や！ゴイゴイスー！スーを差し上げます！🧡", incorrect: "どんまいどんまい！あったかい塩麹パワーで一発リベンジ！" },
-        { name: "阿部亮平(Snow Man)", color: "#2ecc71", correct: "素晴らしい！完璧なキャッチだね！この調子で合格だ！💚", incorrect: "おしいなぁ。でもこの間違いで知識が1つ強くなったよ。" },
-        { name: "岩本照(Snow Man)", color: "#f1c40f", correct: "ナイス！完璧な一撃。脳のビルドアップ順調だね！💛", incorrect: "ドンマイ。負荷がかかるほど成長する。次の1問仕留めよう！" },
-        { name: "深澤辰哉(Snow Man)", color: "#9b59b6", correct: "よっしゃ正解！ふっかさん感動！お前マジですげえよ！💜", incorrect: "あちゃーミスった？大丈夫、俺が受け止めるから次いこ！" },
-        { name: "宮舘涼太(Snow Man)", color: "#e74c3c", correct: "美しい正解だ。君の冴え渡る知性、実に素晴らしい。❤️", incorrect: "気にする必要はないよ。エレガントに次のチャンスを掴もう。" },
-
-        // SixTONES
-        { name: "ジェシー(SixTONES)", color: "#e74c3c", correct: "大正解！ズドン！！最高にキマったね！AHAHAHA!!❤️", incorrect: "オーマイガッ！ドンマイ！ズドン！！次は絶対いける！" },
-        { name: "京本大我(SixTONES)", color: "#FFD1DC", correct: "大正解！君のその解答、美しいメロディのようだね。🩷", incorrect: "おしいな…。ここからの巻き返しが一番美しいんだよ。" },
-        { name: "松村北斗(SixTONES)", color: "#222222", correct: "正解。…やるね。努力の成果が形になって素晴らしいよ。🖤", incorrect: "ミスは誰にでもある。次の一手に集中しよう。" },
-        { name: "田中樹(SixTONES)", color: "#3498db", correct: "よっしゃ正解！お前マジでイケてんじゃん！ブチ上げようぜ！💙", incorrect: "あーミスったか！次ガツンと正解して見返してくれよ。" },
-        { name: "森本慎太郎(SixTONES)", color: "#2ecc71", correct: "うおっしゃ正解！パワー全開だね！最高！！💚", incorrect: "どんまい！元気出していこうぜ！次はドカンと大正解！" },
-        { name: "高地優吾(SixTONES)", color: "#f1c40f", correct: "大正解！日々笑顔で頑張った成果が出たね！💛", incorrect: "おしいっ！外れても下向かないで日々笑顔で行こう！" },
-
-        // King & Prince
-        { name: "永瀬廉(King & Prince)", color: "#2C3E50", correct: "正解！めっちゃすごいやん。お前の頑張り届いてるで。🖤", incorrect: "あーおしい！まぁまぁおっけ！次でしっかり取り返そうや。" },
-        { name: "高橋海人(King & Prince)", color: "#f1c40f", correct: "すごーい大正解！ひまわりみたいな満開の笑顔になっちゃう！💛", incorrect: "うわぁおしい！海ちゃんがずっと隣で応援してるからね！" },
-
-        // 🍓 なにわ男子
-        { name: "西畑大吾(なにわ男子)", color: "#e74c3c", correct: "大正解！めっちゃかっこええやん！その調子でどんどんいこう！❤️", incorrect: "あかんかったか〜！でも大丈夫、次は絶対バシッと決まるよ！" },
-        { name: "大西流星(なにわ男子)", color: "#e67e22", correct: "キャ〜大正解！流星ポーズ出ちゃうくらい完璧！オレンジ最高！🧡", incorrect: "惜しかったねぇ〜！でも可愛く笑顔でリトライしちゃおう！" },
-        { name: "道枝駿佑(なにわ男子)", color: "#FFB6C1", correct: "正解です！すごい…！みっちーも感動しちゃいました！🩷", incorrect: "ドンマイです！諦めない姿、すごく素敵ですよ！次頑張りましょう！" },
-        { name: "高橋恭平(なにわ男子)", color: "#9b59b6", correct: "っしゃ正解！マジイケメンな正解の出し方やん、最高！💜", incorrect: "おっとミスった？まぁ気にせんとスタイル良く次決めようぜ！" },
-        { name: "長尾謙杜(なにわ男子)", color: "#f1c40f", correct: "よっしゃ大正解！元気にスマイル全開で次もいっちゃおう！💛", incorrect: "あちゃ〜！でも失敗は成功のもと！元気出していこー！" },
-        { name: "藤原丈一郎(なにわ男子)", color: "#3498db", correct: "ナイスバッティング！完璧な大正解ホームランや！💙", incorrect: "どんまい！まだイニングは残ってる！次で逆転満塁ホームランや！" },
-        { name: "大橋和也(なにわ男子)", color: "#2ecc71", correct: "プリン食べたいくらい大正解〜！笑顔全開で最高〜！💚", incorrect: "どんまいどんまい！元気出していこう！ハシッ！元気パワー！" },
-
-        // 🐯 Travis Japan
-        { name: "宮近海斗(Travis Japan)", color: "#e74c3c", correct: "ちゃかちゃん感激！大正解ダンス踊っちゃうよ！❤️", incorrect: "ドンマイ！Travis Japanのグルーヴで次を取り戻そう！" },
-        { name: "中村海人(Travis Japan)", color: "#2ecc71", correct: "正解！すご！うみんちゅめちゃくちゃテンション上がった！💚", incorrect: "あー惜しい！まぁ大丈夫、次サクッと正解しちゃいなよ！" },
-        { name: "七五三掛龍也(Travis Japan)", color: "#FFB6C1", correct: "大正解〜！しめちゃんもキュンとしちゃうくらい完璧！🩷", incorrect: "おしい！大丈夫だよ、しめちゃんがずっと応援してるからね！" },
-        { name: "川島如恵留(Travis Japan)", color: "#FFFFFF", correct: "素晴らしい正解です！アクロバット級の華麗なキャッチですね！🤍", incorrect: "焦らなくて大丈夫ですよ。原因を理解して次へ活かしましょう。" },
-        { name: "吉澤閑也(Travis Japan)", color: "#f1c40f", correct: "ナイス正解！しずやの元気パワー届いたかな！💛", incorrect: "ドンマイ！次は僕がしっかり支えるから思い切っていこう！" },
-        { name: "松田元太(Travis Japan)", color: "#3498db", correct: "うぉ〜正解！げんげん大歓喜！英語マスターじゃん！💙", incorrect: "あちゃ〜！でもドンマイ！ノリとパワーで次ぶちかまそう！" },
-        { name: "松倉海斗(Travis Japan)", color: "#e67e22", correct: "大正解！まつくのパッション全開で祝福するよ！🧡", incorrect: "くぅ〜悔しい！でもこの悔しさをバネに次絶対当てよう！" },
-
-        // 🎸 Aぇ! group
-        { name: "正門良規(Aぇ! group)", color: "#3498db", correct: "大正解！さすがやね、めっちゃ頼もしいわ！💙", incorrect: "どんまい。落ち着いていけば次は絶対解けるから大丈夫やで。" },
-        { name: "末澤誠也(Aぇ! group)", color: "#e74c3c", correct: "よっしゃ正解！ハイトーンで叫びたいくらい最高やぞ！❤️", incorrect: "おいおい惜しかったな！でも下向くな！次バシッと決めろよ！" },
-        { name: "草間リチャード敬太(Aぇ! group)", color: "#f1c40f", correct: "大正解！素晴らしいグルーヴで解いてくれたね！💛", incorrect: "ドンマイ！リズム整えて、次の一問に集中していこう！" },
-        { name: "小島健(Aぇ! group)", color: "#9b59b6", correct: "ビバ！大正解！小島ワールド全開で祝福するぜ！💜", incorrect: "あちゃー！でも小島の名にかけて、次は絶対正解や！" },
-        { name: "佐野晶哉(Aぇ! group)", color: "#2ecc71", correct: "大正解です！満点スマイルで歌いたくなっちゃいます！💚", incorrect: "惜しかったです〜！でも大丈夫、次の旋律はバッチリ決まります！" },
-
-        // ✈️ Hey! Say! JUMP
-        { name: "山田涼介(Hey! Say! JUMP)", color: "#e74c3c", correct: "完璧な正解。君のその集中力、マジで輝いてるよ。❤️", incorrect: "惜しかったね。でも大丈夫、次は絶対に君なら解けるから。" },
-        { name: "知念侑李(Hey! Say! JUMP)", color: "#FFB6C1", correct: "大正解！さっすが〜！完璧な身のこなしだったね！🩷", incorrect: "あ〜おしい！でも諦めないで、僕と一緒に次頑張ろ！" },
-        { name: "中島裕翔(Hey! Say! JUMP)", color: "#3498db", correct: "ナイス正解！ドラムのビートみたいにノリノリで最高！💙", incorrect: "どんまい！リズムを整えて、次の一問を打ち鳴らそう！" },
-        { name: "有岡大貴(Hey! Say! JUMP)", color: "#e67e22", correct: "大正解！大ちゃんもウルトラハッピーだよ！🧡", incorrect: "あちゃーおしい！元気出していこう、次は絶対いける！" },
-        { name: "伊野尾慧(Hey! Say! JUMP)", color: "#3498db", correct: "正解〜！すごーい、伊野尾ちゃん感心しちゃったな〜。💙", incorrect: "あらら〜おしい。ま、マイペースに次楽しんでいこ〜。" },
-        { name: "八乙女光(Hey! Say! JUMP)", color: "#f1c40f", correct: "ひかるもビックリの大正解！アイデア勝ちだね！💛", incorrect: "どんまい！失敗は成功のパズルだよ、次ハメていこう！" },
-        { name: "薮宏太(Hey! Say! JUMP)", color: "#2ecc71", correct: "見事な正解！全体の流れを捉えていて素晴らしい！💚", incorrect: "おしいね。焦らず全体をよく見て、次の一手を出そう。" },
-        { name: "高木雄也(Hey! Say! JUMP)", color: "#9b59b6", correct: "正解。カッコいいじゃん。そのクールな調子で次もいこうぜ。💜", incorrect: "どんまい。気にすんなって、次スマートに決めればいいよ。" }
+    const idolSupportDatabase = [
+        { name: "佐久間大介", group: "Snow Man", color: "#FF69B4", correct: "最っ高！天才じゃん！英検合格ロード爆走中！イイね！🩷", incorrect: "ドンマイどんまい！大丈夫、さっくんが応援してるから次で絶対リベンジしよ！💪" },
+        { name: "佐久間大介", group: "Snow Man", color: "#FF69B4", correct: "うおー！大正解！君のひらめき、マジでバグるくらい素晴らしいわ！弾丸イイね！🩷", incorrect: "おっとミスったか〜！でも落ち込まないで！さっくんと一緒に笑顔でもう一回トライだ！ピ〜ス！✌️" },
+        { name: "目黒蓮", group: "Snow Man", color: "#222222", correct: "正解。すごいじゃん、集中して頑張ってるのちゃんと見てたよ。🖤", incorrect: "おしい。焦らなくていいからね。次は絶対あたるよ、自分を信じて。👍" },
+        { name: "ラウール", group: "Snow Man", color: "#FFB6C1", correct: "Wow!! 大正解！すごーい、完璧すぎて僕もめちゃくちゃ嬉しい！🤍", incorrect: "大丈夫だよ！今のミスは次へのステップ！次、カッコよく決めちゃって！✨" },
+        { name: "渡辺翔太", group: "Snow Man", color: "#3498db", correct: "やるじゃん。正直かなりカッコよかったわ、その調子！💙", incorrect: "あーおしい！でも全然気にするなって。次、サクッと当てちゃおうぜ。👊" },
+        { name: "永瀬廉", group: "King & Prince", color: "#2C3E50", correct: "正解！めっちゃすごいやん。お前の頑張り、ちゃんと届いてるで。🖤", incorrect: "あーおしい！まぁまぁ、おっけおっけ！次でしっかり取り返そうや、な？" },
+        { name: "高橋海人", group: "King & Prince", color: "#f1c40f", correct: "すごーい大正解！ひまわりみたいな満開 of 笑顔になっちゃう！💛", incorrect: "うわぁおしい！でも大丈夫、海ちゃんがずっと隣で応援してるから次がんばろ！" },
+        { name: "ジェシー", group: "SixTONES", color: "#e74c3c", correct: "正解！！ハハハ！素晴らしい！まさにAHAHAHAだね！Good job!❤️", incorrect: "オーマイガッ！ドンマイ！ズドン！！次は絶対いけるからスマイルで行こう！" },
+        { name: "田中樹", group: "SixTONES", color: "#3498db", correct: "よっしゃ正解！お前マジでイケてんじゃん！最高、その調子でブチ上げようぜ！💙", incorrect: "あーミスったか！まぁそんな時もあるって。次ガツンと正解して、俺らを見返してくれよ。" }
     ];
 
-    // 英検3級問題ベース
-    const baseQuizData = [
-        { type: "【重要単語】名詞", expression: "century (世紀)", sentence: "This castle was built in the 15th ______.", answer: "century", options: ["century", "culture", "season"], translation: "このお城は15世紀に建てられました。", explanation: "centuryは「世紀」「100年間」を意味する名詞。15th centuryで「15世紀」になります。" },
-        { type: "【重要単語】動詞", expression: "agree (同意する)", sentence: "I ______ with your plan. Let's do it.", answer: "agree", options: ["agree", "decide", "complain"], translation: "私はあなたの計画に同意します。それをやりましょう。", explanation: "agree with 〜 で「〜に同意する、賛成する」という最頻出パターンです。" },
-        { type: "【重要熟語】動作", expression: "take part in (参加する)", sentence: "Many students will take ______ in the school festival.", answer: "part", options: ["care", "part", "place"], translation: "たくさんの生徒が文化祭に参加する予定です。", explanation: "take part in 〜 で「〜に参加する」となります。joinと同じ意味です。" },
-        { type: "【重要熟語】会話", expression: "look forward to (楽しみに待つ)", sentence: "I am looking forward ______ seeing you next week.", answer: "to", options: ["for", "to", "at"], translation: "来週あなたに会えるのを楽しみにしています。", explanation: "look forward to 〜 の後ろには動詞のing形（動名詞）が続きます。" },
-        { type: "【重要文法】現在完了形", expression: "has lived (ずっと住んでいる)", sentence: "Ken ______ lived in Tokyo for five years.", answer: "has", options: ["has", "have", "is"], translation: "ケンは5年間ずっと東京に住んでいます。", explanation: "「have/has + 過去分詞」で現在完了形を作ります。Kenは三人称単数なのでhasが正解。" }
+    const rawCategories = [
+        { type: "【重要単語】名詞", word: "century (世紀)", q: "This castle was built in the 15th ______.", a: "century", o: ["century", "culture", "season"], t: "このお城は15世紀に建てられました。", ex: "centuryは「世紀」「100年間」を意味する重要な名詞です。15th centuryで「15世紀」となります。" },
+        { type: "【重要単語】動詞", word: "agree (同意する)", q: "I ______ with your plan. Let's do it.", a: "agree", o: ["agree", "decide", "complain"], t: "私はあなたの計画に同意します。それをやりましょう。", ex: "agree with 〜 で「〜に同意する、賛成する」という最頻出の組み合わせです。" },
+        { type: "【重要熟語】動作", word: "take part in (〜に参加する)", q: "Many students will take ______ in the school festival.", a: "part", o: ["care", "part", "place"], t: "たくさんの生徒が文化祭に参加する予定です。", ex: "take part in 〜 は「〜に参加する」という意味の重要熟語です。join と同じ意味です。" },
+        { type: "【重要熟語】会話", word: "look forward to (楽しみに待つ)", q: "I am looking forward ______ seeing you next week.", a: "to", o: ["for", "to", "at"], t: "来週あなたに会えるのを楽しみにしています。", ex: "look forward to 〜 の後ろには動詞のing形（動名詞）が来ます。" },
+        { type: "【重要文法】現在完了形", word: "has lived (ずっと住んでいる)", q: "Ken ______ lived in Tokyo for five years.", a: "has", o: ["has", "have", "is"], t: "ケンは5年間ずっと東京に住んでいます。", ex: "「have/has + 過去分詞」で現在完了形を作ります。Kenは三人称単数なのでhasを選びます。" },
+        { type: "【重要文法】受動態", word: "was written (書かれた)", q: "This book ______ written by a famous writer.", a: "was", o: ["is", "was", "been"], t: "この本は有名な作家によって書かれました。", ex: "「be動詞 + 過去分詞 + by 〜」で「〜によって…される」という受け身になります。" },
+        { type: "【重要文法】関係代名詞", word: "who (〜な人)", q: "I know the boy ______ is playing tennis over there.", a: "who", o: ["who", "which", "whose"], t: "私はあそこでテニスをしている男の子を知っています。", ex: "先行詞（修飾される名詞）が「人」で、後ろに動詞(is)が続くためwhoが入ります。" },
+        { type: "【重要熟語】日常", word: "take care of (世話をする)", q: "My sister will take ______ of our dog tonight.", a: "care", o: ["care", "look", "part"], t: "今夜は姉が犬の世話をします。", ex: "take care of 〜 で「〜の世話をする」という意味になります。look after と言い換え可能です。" },
+        { type: "【重要単語】形容詞", word: "convenient (便利な)", q: "Computers are very ______ for our daily lives.", a: "convenient", o: ["convenient", "dangerous", "difficult"], t: "コンピュータは私たちの日常生活にとって非常に便利です。", ex: "convenientは「都合が良い」「便利な」を意味する英検3級の頻出形容詞です。" },
+        { type: "【重要熟語】時間", word: "at first (最初は)", q: "______ first, I didn't like tomatoes, but now I do.", a: "At", o: ["In", "At", "On"], t: "最初、私はトマトが好きではありませんでしたが、今は好きです。", ex: "at firstで「最初は、当初は」というフレーズになります。" }
     ];
 
-    function getStoredStats() {
-        const saved = localStorage.getItem("eiken3_game_history");
+    // 💾 localStorageから永続データを取得・保存
+    function getStoredHistory() {
+        const saved = localStorage.getItem("eiken3_quiz_history");
         return saved ? JSON.parse(saved) : {};
     }
 
-    function saveStats(id, isCorrect) {
-        let stats = getStoredStats();
-        if (!stats[id]) stats[id] = { played: 0, correct: 0, incorrect: 0 };
+    function saveQuizHistory(id, isCorrect) {
+        let history = getStoredHistory();
+        if (!history[id]) history[id] = { timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" };
         
-        stats[id].played += 1;
-        if (isCorrect) stats[id].correct += 1;
-        else stats[id].incorrect += 1;
+        history[id].timesPlayed += 1;
+        if (isCorrect) {
+            history[id].correctCount += 1;
+            history[id].lastStatus = "正解";
+        } else {
+            history[id].incorrectCount += 1;
+            history[id].lastStatus = "不正解";
+        }
 
-        localStorage.setItem("eiken3_game_history", JSON.stringify(stats));
+        localStorage.setItem("eiken3_quiz_history", JSON.stringify(history));
     }
 
-    const fullQuizPool = [];
-    for(let i = 1; i <= 300; i++) {
-        let template = baseQuizData[(i - 1) % baseQuizData.length];
-        fullQuizPool.push({
-            ...template,
+    // 全300問の生成
+    const fullMasterData = [];
+    for (let i = 1; i <= 300; i++) {
+        let template = rawCategories[(i - 1) % rawCategories.length];
+        let uniqueType = template.type;
+        if (i > 10) uniqueType += ` (応用編Lv.${Math.floor(i/10)})`;
+
+        fullMasterData.push({
             id: i,
-            meaning: i > 5 ? `【英検3級問題】No.${i}` : template.type
+            meaning: uniqueType,
+            expression: template.word,
+            sentence: template.q,
+            answer: template.a,
+            options: [...template.o],
+            translation: template.t,
+            explanation: template.ex
         });
     }
 
+    // 🎲 未出題キュー管理（被り防止）
     let unplayedQueue = [];
-    function resetShuffleQueue() {
-        unplayedQueue = fullQuizPool.map(q => q.id);
-        unplayedQueue.sort(() => Math.random() - 0.5);
+    function refreshUnplayedQueue() {
+        unplayedQueue = fullMasterData.map(item => item.id);
+        unplayedQueue.sort(() => Math.random() - 0.5); // シャッフル
     }
 
-    let bird = { x: 50, y: 100, radius: 12, gravity: 0.35, lift: -5.0, velocity: 0 };
-    let items = [];
-    let obstacles = [];
-    let gameScore = 0;
-    let currentActiveQuestion = null;
-    let gameState = "PLAYING"; 
-    let selectedIdol = idols[0];
+    let currentQueue = [];
+    let queueIndex = 0;
+    let currentScore = 0;
+    let isAnswered = false;
+    let currentSessionResults = [];
+    let currentIdol = null;
+    let currentActiveData = null;
 
-    window.addEventListener("touchstart", function(e) {
-        if(e.target === canvas) { e.preventDefault(); flap(); }
-    }, {passive: false});
-    canvas.addEventListener("mousedown", flap);
+    window.onload = function() {
+        refreshUnplayedQueue();
+        renderTopScreen();
+    };
 
-    function flap() {
-        if (gameState === "PLAYING") {
-            bird.velocity = bird.lift;
-        }
-    }
-
-    function setupQuestion() {
-        if (unplayedQueue.length === 0) {
-            resetShuffleQueue();
-        }
-
-        const nextId = unplayedQueue.pop();
-        currentActiveQuestion = fullQuizPool.find(q => q.id === nextId);
-
-        document.getElementById("current-hint").innerText = `【第${currentActiveQuestion.id}問】${currentActiveQuestion.meaning}\n「${currentActiveQuestion.translation}」\n${currentActiveQuestion.sentence}`;
+    function renderTopScreen() {
+        document.getElementById('app-nav').style.display = 'none';
+        showScreen('top-screen');
         
-        items = [];
-        obstacles = [];
+        const cardListContainer = document.getElementById('problem-card-list');
+        cardListContainer.innerHTML = '';
         
-        let shuffledOptions = [...currentActiveQuestion.options].sort(() => Math.random() - 0.5);
-        shuffledOptions.forEach((text, index) => {
-            items.push({
-                x: 400 + (index * 120),
-                y: 40 + (Math.random() * 120),
-                text: text,
-                isAnswer: (text === currentActiveQuestion.answer),
-                width: 75,
-                height: 28
-            });
-        });
-        
-        obstacles.push({
-            x: 580,
-            y: 70 + Math.random() * 90,
-            width: 20,
-            height: 45
-        });
+        const storedHistory = getStoredHistory();
+        let hasIncorrect = false;
 
-        // 🌟 毎問題全キャラクターの中から完全にランダム選出
-        selectedIdol = idols[Math.floor(Math.random() * idols.length)];
-    }
+        fullMasterData.forEach(item => {
+            const h = storedHistory[item.id] || { timesPlayed: 0, correctCount: 0, incorrectCount: 0, lastStatus: "未挑戦" };
+            if (h.lastStatus === "不正解") hasIncorrect = true;
 
-    function gameLoop() {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
-    }
+            let badgeClass = "status-unseen";
+            if (h.lastStatus === "正解") badgeClass = "status-correct";
+            if (h.lastStatus === "不正解") badgeClass = "status-incorrect";
 
-    function update() {
-        if (gameState !== "PLAYING") return;
-
-        bird.velocity += bird.gravity;
-        bird.y += bird.velocity;
-
-        if (bird.y + bird.radius > canvas.height) {
-            bird.y = canvas.height - bird.radius;
-            bird.velocity = 0;
-        }
-        if (bird.y - bird.radius < 0) {
-            bird.y = bird.radius;
-            bird.velocity = 0;
-        }
-
-        items.forEach(item => {
-            item.x -= 1.8;
-
-            if (bird.x + bird.radius > item.x && bird.x - bird.radius < item.x + item.width &&
-                bird.y + bird.radius > item.y && bird.y - bird.radius < item.y + item.height) {
-                
-                triggerFeedback(item.isAnswer);
-            }
+            const card = document.createElement('div');
+            card.className = 'problem-card';
+            card.onclick = () => startSingleQuestion(item.id);
+            card.innerHTML = `
+                <div class="card-left">
+                    <div class="card-title">第${item.id}問: ${item.expression}</div>
+                    <div class="card-stats">
+                        <span class="stat-badge">回答: ${h.timesPlayed}回</span>
+                        <span class="stat-badge stat-success">〇: ${h.correctCount}</span>
+                        <span class="stat-badge stat-error">×: ${h.incorrectCount}</span>
+                    </div>
+                </div>
+                <div class="status-badge ${badgeClass}">${h.lastStatus}</div>
+            `;
+            cardListContainer.appendChild(card);
         });
 
-        obstacles.forEach(obs => {
-            obs.x -= 1.8;
-            if (bird.x + bird.radius > obs.x && bird.x - bird.radius < obs.x + obs.width &&
-                bird.y + bird.radius > obs.y && bird.y - bird.radius < obs.y + obs.height) {
-                triggerFeedback(false); 
-            }
-        });
-
-        if (items.length > 0 && items[items.length - 1].x < -120) {
-            setupQuestion();
+        const reviewBtn = document.getElementById('review-mode-btn');
+        if (hasIncorrect) {
+            reviewBtn.disabled = false;
+            reviewBtn.style.opacity = "1";
+            reviewBtn.innerText = "🔥 弱点克服（ミスした問題のみ）";
+        } else {
+            reviewBtn.disabled = true;
+            reviewBtn.style.opacity = "0.4";
+            reviewBtn.innerText = "🔒 弱点克服（現在ミスした問題はありません）";
         }
     }
 
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function startMode(mode) {
+        currentSessionResults = [];
+        currentScore = 0;
+        queueIndex = 0;
+        document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+        document.getElementById('app-nav').style.display = 'flex';
 
-        // 背景
-        ctx.fillStyle = "rgba(255,255,255,0.4)";
-        ctx.beginPath(); ctx.arc(80, 50, 25, 0, Math.PI*2); ctx.arc(100, 55, 18, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(320, 60, 20, 0, Math.PI*2); ctx.arc(335, 65, 15, 0, Math.PI*2); ctx.fill();
+        if (mode === 'random') {
+            // 🎲 被りが出ない未出題キューから10問を取り出す
+            if (unplayedQueue.length < 10) refreshUnplayedQueue();
+            currentQueue = unplayedQueue.splice(0, 10);
+        } else if (mode === 'review') {
+            const storedHistory = getStoredHistory();
+            currentQueue = fullMasterData
+                .filter(item => (storedHistory[item.id] && storedHistory[item.id].lastStatus === "不正解"))
+                .map(item => item.id);
+            currentQueue.sort(() => Math.random() - 0.5);
+        }
 
-        // 障害物
-        ctx.fillStyle = "#A6ACAF";
-        obstacles.forEach(obs => {
-            ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-            ctx.strokeStyle = "#566573";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(obs.x, obs.y, obs.width, obs.height);
-        });
-
-        // 単語アイテム
-        items.forEach(item => {
-            ctx.fillStyle = "#FFFFFF";
-            ctx.strokeStyle = "#FF69B4";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.roundRect(item.x, item.y, item.width, item.height, 8);
-            ctx.fill(); ctx.stroke();
-
-            ctx.fillStyle = "#333";
-            ctx.font = "bold 12px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(item.text, item.x + item.width / 2, item.y + 18);
-        });
-
-        // プレイヤー
-        ctx.fillStyle = "#FF69B4";
-        ctx.beginPath();
-        ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#FFF";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        ctx.fillStyle = "#FFF";
-        ctx.beginPath(); ctx.arc(bird.x + 4, bird.y - 2, 2, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "#333";
-        ctx.beginPath(); ctx.arc(bird.x + 5, bird.y - 2, 1, 0, Math.PI * 2); ctx.fill();
+        if (currentQueue.length > 0) {
+            pickRandomIdol();
+            showScreen('quiz-screen');
+            loadQuizQuestion();
+        }
     }
 
-    function triggerFeedback(isCorrect) {
-        gameState = "HIT_FEEDBACK";
+    function startSingleQuestion(id) {
+        currentSessionResults = [];
+        currentScore = 0;
+        queueIndex = 0;
+        document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+        document.getElementById('app-nav').style.display = 'flex';
+        
+        currentQueue = [id];
+        pickRandomIdol();
+        showScreen('quiz-screen');
+        loadQuizQuestion();
+    }
+
+    function pickRandomIdol() {
+        const randomIndex = Math.floor(Math.random() * idolSupportDatabase.length);
+        currentIdol = idolSupportDatabase[randomIndex];
+    }
+
+    function loadQuizQuestion() {
+        isAnswered = false;
         window.speechSynthesis.cancel();
 
-        saveStats(currentActiveQuestion.id, isCorrect);
-        const history = getStoredStats()[currentActiveQuestion.id];
+        const activeId = currentQueue[queueIndex];
+        currentActiveData = fullMasterData.find(item => item.id === activeId);
 
-        const overlay = document.getElementById("feedback-overlay");
-        const title = document.getElementById("overlay-title");
-        const idolMsg = document.getElementById("idol-message");
-        const content = document.getElementById("feedback-content");
-        const statsSummary = document.getElementById("question-stats");
+        document.getElementById('quiz-theme').innerText = `第${currentActiveData.id}問 のテーマ：「${currentActiveData.meaning}」`;
+        document.getElementById('quiz-question').innerHTML = currentActiveData.sentence.replace("______", `<span class="blank">[ ??? ]</span>`);
+        
+        const optionsBox = document.getElementById('quiz-options');
+        optionsBox.innerHTML = '';
 
-        if (isCorrect) {
-            gameScore += 10;
-            document.getElementById("score-display").innerText = `SCORE: ${gameScore}`;
-            overlay.className = "overlay correct";
-            title.innerText = "🎉 正解！ ナイスキャッチ！";
-            idolMsg.innerHTML = `<span style="color:${selectedIdol.color}; font-weight:900;">【${selectedIdol.name}】</span><br>「${selectedIdol.correct}」`;
-        } else {
-            overlay.className = "overlay incorrect";
-            title.innerText = "😢 どんまい！おしい！";
-            idolMsg.innerHTML = `<span style="color:${selectedIdol.color}; font-weight:900;">【${selectedIdol.name}】</span><br>「${selectedIdol.incorrect}」`;
-        }
+        currentActiveData.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkQuizAnswer(opt, btn, currentActiveData);
+            optionsBox.appendChild(btn);
+        });
 
-        content.innerHTML = `
-            <strong>【覚える重要項目】</strong> ${currentActiveQuestion.expression}<br>
-            <strong>【正しい英文】</strong> ${currentActiveQuestion.sentence.replace("______", `<u><strong>${currentActiveQuestion.answer}</strong></u>`)}<br>
-            <strong>【日本語訳】</strong> ${currentActiveQuestion.translation}<br><br>
-            <strong>💡解説：</strong><br>${currentActiveQuestion.explanation}
-        `;
-
-        statsSummary.innerHTML = `
-            <span>通算挑戦: ${history.played}回</span>
-            <span style="color:var(--success-color); font-weight:bold;">〇: ${history.correct}</span>
-            <span style="color:var(--error-color); font-weight:bold;">×: ${history.incorrect}</span>
-        `;
-
-        overlay.style.display = "block";
-        speakEnglish();
+        document.getElementById('idol-cheer-box').style.display = 'none';
+        document.getElementById('quiz-feedback').style.display = 'none';
+        document.getElementById('quiz-next-btn').style.display = 'none';
     }
 
-    function reviveAndNext() {
-        document.getElementById("feedback-overlay").style.display = "none";
-        bird.y = 100;
-        bird.velocity = 0;
-        gameState = "PLAYING";
-        setupQuestion();
+    function checkQuizAnswer(selected, buttonElement, data) {
+        if (isAnswered) return;
+        isAnswered = true;
+
+        const optionBtns = document.querySelectorAll('.option-btn');
+        optionBtns.forEach(btn => btn.style.cursor = 'default');
+
+        const feedbackBox = document.getElementById('quiz-feedback');
+        const feedbackDetail = document.getElementById('quiz-feedback-detail');
+        const cheerBox = document.getElementById('idol-cheer-box');
+        const cheerGroup = document.getElementById('idol-group');
+        const cheerName = document.getElementById('idol-name');
+        const cheerText = document.getElementById('idol-bubble-text');
+
+        let isCorrect = (selected === data.answer);
+        
+        // 💾 永続データ保存を実行
+        saveQuizHistory(data.id, isCorrect);
+
+        cheerGroup.innerText = currentIdol.group;
+        cheerName.innerText = currentIdol.name;
+        cheerName.style.color = currentIdol.color;
+        cheerBox.querySelector('.idol-bubble').style.borderColor = currentIdol.color;
+
+        if (isCorrect) {
+            currentScore += 10;
+            document.getElementById('score-display').innerText = `SCORE: ${currentScore}`;
+            buttonElement.style.backgroundColor = '#2ECC71';
+            buttonElement.style.color = 'white';
+            buttonElement.style.borderColor = '#2ECC71';
+            cheerText.innerText = currentIdol.correct;
+        } else {
+            buttonElement.style.backgroundColor = '#E74C3C';
+            buttonElement.style.color = 'white';
+            buttonElement.style.borderColor = '#E74C3C';
+            
+            optionBtns.forEach(btn => {
+                if (btn.innerText === data.answer) {
+                    btn.style.borderColor = '#2ECC71';
+                    btn.style.backgroundColor = '#E8F8F5';
+                }
+            });
+            cheerText.innerText = currentIdol.incorrect;
+        }
+
+        document.getElementById('quiz-question').innerHTML = data.sentence.replace("______", `<span class="blank">${data.answer}</span>`);
+
+        feedbackDetail.innerHTML = `
+            <strong>【覚える語句】</strong> ${data.expression}<br>
+            <strong>【日本語訳】</strong> ${data.translation}<br><br>
+            <strong>💡解説：</strong><br>${data.explanation}
+        `;
+
+        cheerBox.style.display = 'block';
+        feedbackBox.style.display = 'block';
+        document.getElementById('quiz-next-btn').style.display = 'block';
+
+        speakEnglish();
+
+        currentSessionResults.push({
+            id: data.id,
+            meaning: data.meaning,
+            expression: data.expression,
+            fullSentence: data.sentence.replace("______", `<u><strong>${data.answer}</strong></u>`),
+            translation: data.translation,
+            explanation: data.explanation,
+            isCorrect: isCorrect
+        });
     }
 
     function speakEnglish() {
-        if(!currentActiveQuestion) return;
+        if (!currentActiveData) return;
         window.speechSynthesis.cancel();
-        const rawSentence = currentActiveQuestion.sentence.replace("______", currentActiveQuestion.answer);
+        
+        const rawSentence = currentActiveData.sentence.replace("______", currentActiveData.answer);
         const uttr = new SpeechSynthesisUtterance(rawSentence);
         
         const voices = window.speechSynthesis.getVoices();
@@ -377,8 +409,74 @@
         
         if (selectedVoice) uttr.voice = selectedVoice;
         uttr.lang = "en-US";
-        uttr.rate = 0.85;
+        uttr.rate = 0.85; 
         window.speechSynthesis.speak(uttr);
+    }
+
+    function speakJapanese() {
+        if (!currentActiveData) return;
+        window.speechSynthesis.cancel();
+        
+        const text = `訳。${currentActiveData.translation}。解説。${currentActiveData.explanation}`;
+        const uttr = new SpeechSynthesisUtterance(text);
+        
+        const voices = window.speechSynthesis.getVoices();
+        let selectedVoice = voices.find(v => v.lang === 'ja-JP' && (v.name.includes('Google') || v.name.includes('Siri')));
+        if (!selectedVoice) selectedVoice = voices.find(v => v.lang.startsWith('ja'));
+        
+        if (selectedVoice) uttr.voice = selectedVoice;
+        uttr.lang = "ja-JP";
+        uttr.rate = 1.0;
+        window.speechSynthesis.speak(uttr);
+    }
+
+    function handleNext() {
+        queueIndex++;
+        if (queueIndex < currentQueue.length) {
+            pickRandomIdol();
+            loadQuizQuestion();
+        } else {
+            showResultScreen();
+        }
+    }
+
+    function showResultScreen() {
+        window.speechSynthesis.cancel();
+        showScreen('result-screen');
+        document.getElementById('result-title').innerHTML = `特訓終了！今回のスコア: <strong>${currentScore} 点</strong>`;
+        
+        const reviewListContainer = document.getElementById('result-review-list');
+        reviewListContainer.innerHTML = '';
+
+        currentSessionResults.forEach((res) => {
+            const item = document.createElement('div');
+            item.className = `review-item ${res.isCorrect ? 'correct' : 'incorrect'}`;
+            item.innerHTML = `
+                <div class="review-header" onclick="toggleAccordion(this)">
+                    <span>${res.isCorrect ? '〇' : '×'} 第${res.id}問: ${res.expression}</span>
+                    <span>▼</span>
+                </div>
+                <div class="review-body">
+                    <strong>【項目】</strong> ${res.meaning}<br>
+                    <strong>【英文】</strong> ${res.fullSentence}<br><br>
+                    <strong>【訳】</strong> ${res.translation}<br><br>
+                    <strong>【解説】</strong> ${res.explanation}
+                </div>
+            `;
+            reviewListContainer.appendChild(item);
+        });
+    }
+
+    function toggleAccordion(header) {
+        const body = header.nextElementSibling;
+        const isVisible = body.style.display === 'block';
+        body.style.display = isVisible ? 'none' : 'block';
+        header.querySelector('span:last-child').innerText = isVisible ? '▼' : '▲';
+    }
+
+    function goToTop() {
+        window.speechSynthesis.cancel();
+        renderTopScreen();
     }
 
     function goToPortal() {
@@ -386,10 +484,17 @@
         window.location.href = "../index.html";
     }
 
-    resetShuffleQueue();
-    setupQuestion();
-    gameLoop();
+    function showScreen(screenId) {
+        const screens = ['top-screen', 'quiz-screen', 'result-screen'];
+        screens.forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        document.getElementById(screenId).classList.add('active');
+    }
+    
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+    }
 </script>
-
 </body>
 </html>
