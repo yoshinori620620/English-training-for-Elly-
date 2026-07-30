@@ -124,7 +124,6 @@
     </div>
 </div>
 <script>
-    // 🌟 キャラクターデータベース（被りなしデッキで選出）
     const idolSupportDatabase = [
         { name: "佐久間大介", group: "Snow Man", color: "#FF69B4", correct: "最っ高！天才じゃん！英検合格ロード爆走中！イイね！🩷", incorrect: "ドンマイどんまい！大丈夫、さっくんが応援してるから次で絶対リベンジしよ！💪" },
         { name: "目黒蓮", group: "Snow Man", color: "#222222", correct: "正解。すごいじゃん、集中して頑張ってるのちゃんと見てたよ。🖤", incorrect: "おしい。焦らなくていいからね。次は絶対あたるよ、自分を信じて。👍" },
@@ -146,7 +145,6 @@
         { name: "山田涼介", group: "Hey! Say! JUMP", color: "#e74c3c", correct: "完璧な正解。君のその集中力、マジで輝いてるよ。❤️", incorrect: "惜しかったね。でも大丈夫、次は絶対に君なら解けるから。" }
     ];
 
-    // キャラクター被り防止用デッキ
     let idolDeck = [];
     function getNextIdol() {
         if (idolDeck.length === 0) {
@@ -156,7 +154,6 @@
         return idolSupportDatabase[idolDeck.pop()];
     }
 
-    // 📚 英検3級 独自問題データベース（重複のない実用的な英検3級問題）
     const masterQuestionList = [
         { id: 1, meaning: "【重要単語】名詞", word: "century (世紀)", sentence: "This castle was built in the 15th ______.", answer: "century", options: ["century", "culture", "season"], translation: "このお城は15世紀に建てられました。", explanation: "centuryは「世紀」「100年間」を意味する名詞です。" },
         { id: 2, meaning: "【重要単語】動詞", word: "agree (同意する)", sentence: "I ______ with your plan. Let's do it.", answer: "agree", options: ["agree", "decide", "complain"], translation: "私はあなたの計画に同意します。それをやりましょう。", explanation: "agree with 〜 で「〜に同意する」となります。" },
@@ -175,7 +172,6 @@
         { id: 15, meaning: "【重要会話】提案", word: "How about (〜はどうですか)", sentence: "______ having a cup of tea during the break?", answer: "How about", options: ["Why don't", "How about", "Would you"], translation: "休憩中にお茶を一杯いかがですか？", explanation: "How about + 動名詞(ing) で「〜はいかがですか」と提案します。" }
     ];
 
-    // 💾 localStorage 保存・読み込み用キー
     const STORAGE_KEY = "eiken3_quiz_user_history_v2";
 
     function loadSavedHistory() {
@@ -287,7 +283,6 @@
         document.getElementById('app-nav').style.display = 'flex';
 
         if (mode === 'random') {
-            // 未挑戦を最優先にし、同じ問題が重複しないように選出
             let unseen = masterQuestionList.filter(i => i.lastStatus === "未挑戦").map(i => i.id);
             let answered = masterQuestionList.filter(i => i.lastStatus !== "未挑戦").map(i => i.id);
             
@@ -394,7 +389,6 @@
             cheerText.innerText = currentIdol.incorrect;
         }
 
-        // 💾 回答データを即座にlocalStorageへ自動保存
         saveHistory();
 
         document.getElementById('quiz-question').innerHTML = data.sentence.replace("______", `<span class="blank">${data.answer}</span>`);
